@@ -103,6 +103,10 @@ Twinkle.protect.callback = function twinkleprotectCallback() {
 // { edit: { level: "sysop", expiry: <some date>, cascade: true }, ... }
 Twinkle.protect.currentProtectionLevels = {};
 
+// mw.loader.getState('ext.flaggedRevs.review') returns null if the
+// FlaggedRevs extension is not registered.  Previously, this was done with
+// wgFlaggedRevsParams, but after 1.34-wmf4 it is no longer exported if empty
+// (https://gerrit.wikimedia.org/r/c/mediawiki/extensions/FlaggedRevs/+/508427)
 Twinkle.protect.fetchProtectionLevel = function twinkleprotectFetchProtectionLevel() {
 
 	var api = new mw.Api();
@@ -113,14 +117,33 @@ Twinkle.protect.fetchProtectionLevel = function twinkleprotectFetchProtectionLev
 		list: 'logevents',
 		letype: 'protect',
 		letitle: mw.config.get('wgPageName'),
-		prop: 'info',
+		prop: (mw.loader.getState('ext.flaggedRevs.review') ? 'info|flagged' : 'info'),
 		inprop: 'protection',
 		titles: mw.config.get('wgPageName')
 	});
+	var stableDeferred = api.get({
+		format: 'json',
+		action: 'query',
+		list: 'logevents',
+		letype: 'stable',
+		letitle: mw.config.get('wgPageName')
+	});
 
-	$.when.apply($, [protectDeferred]).done(function(protectData){
-		var pageid = protectData.query.pageids[0];
-		var page = protectData.query.pages[pageid];
+	var earlyDecision = [protectDeferred];
+	if (mw.loader.getState('ext.flaggedRevs.review')) {
+		earlyDecision.push(stableDeferred);
+	}
+
+	$.when.apply($, earlyDecision).done(function(protectData, stableData){
+		// $.when.apply is supposed to take an unknown number of promises
+		// via an array, which it does, but the type of data returned varies.
+		// If there are two or more deferreds, it returns an array (of objects),
+		// but if there's just one deferred, it retuns a simple object.
+		// This is annoying.
+		protectData = $(protectData).toArray();
+
+		var pageid = protectData[0].query.pageids[0];
+		var page = protectData[0].query.pages[pageid];
 		var current = {};
 
 		$.each(page.protection, function( index, protection ) {
@@ -133,8 +156,16 @@ Twinkle.protect.fetchProtectionLevel = function twinkleprotectFetchProtectionLev
 			}
 		});
 
+		if (page.flagged) {
+			current.stabilize = {
+				level: page.flagged.protection_level,
+				expiry: page.flagged.protection_expiry
+			};
+		}
+
 		// show the protection level and log info
-		Twinkle.protect.hasProtectLog = !!protectData.query.logevents.length;
+		Twinkle.protect.hasProtectLog = !!protectData[0].query.logevents.length;
+		Twinkle.protect.hasStableLog = mw.loader.getState('ext.flaggedRevs.review') ? !!stableData[0].query.logevents.length : false;
 		Twinkle.protect.currentProtectionLevels = current;
 		Twinkle.protect.callback.showLogAndCurrentProtectInfo();
 	});
@@ -152,6 +183,10 @@ Twinkle.protect.callback.showLogAndCurrentProtectInfo = function twinkleprotectC
 				Twinkle.protect.hasStableLog ? $("<span> &bull; </span>") : null
 			);
 
+		if (Twinkle.protect.hasStableLog) {
+			$linkMarkup.append($( '<a target="_blank" href="' + mw.util.getUrl('Special:Log', {action: 'view', page: mw.config.get('wgPageName'), type: 'stable'}) + '">'+wgULS('修订巡查保护日志', '修訂巡查保護日誌')+'</a>)' ));
+		}
+
 		Morebits.status.init($('div[name="hasprotectlog"] span')[0]);
 		Morebits.status.warn(
 			currentlyProtected ? wgULS('早前保护', '早前保護') : wgULS('此页面曾在过去被保护', '此頁面曾在過去被保護'),
@@ -164,7 +199,7 @@ Twinkle.protect.callback.showLogAndCurrentProtectInfo = function twinkleprotectC
 
 	if (currentlyProtected) {
 		$.each(Twinkle.protect.currentProtectionLevels, function(type, settings) {
-			var label = Morebits.string.toUpperCaseFirstChar(type);
+			var label = type === 'stabilize' ? wgULS('修订巡查', '修訂巡查') : Morebits.string.toUpperCaseFirstChar(type);
 			protectionNode.push($("<b>" + label + ": " + settings.level + "</b>")[0]);
 			if (settings.expiry === 'infinity') {
 				protectionNode.push(wgULS("（无限期）", "（無限期）"));
@@ -198,7 +233,14 @@ Twinkle.protect.callback.changeAction = function twinkleprotectCallbackChangeAct
 					label: wgULS('选择默认：', '選擇預設：'),
 					event: Twinkle.protect.callback.changePreset,
 					list: (mw.config.get('wgArticleId') ?
-						Twinkle.protect.protectionTypesAdmin :
+						Twinkle.protect.protectionTypesAdmin.filter(function(v) {
+							// Hardcoded until [[phab:T218479]]
+							if ((mw.config.get('wgNamespaceNumber') !== 0 && mw.config.get('wgNamespaceNumber') !== 4)
+								&& (v.label === '修订巡查' || v.label === '修訂巡查')) {
+								return false;
+							}
+							return true;
+						}) :
 						Twinkle.protect.protectionTypesCreate)
 				});
 
@@ -245,7 +287,7 @@ Twinkle.protect.callback.changeAction = function twinkleprotectCallbackChangeAct
 				field2.append({
 						type: 'select',
 						name: 'editexpiry',
-						label: '终止时间：',
+						label: wgULS('终止时间：', '終止時間：'),
 						event: function(e) {
 							if (e.target.value === 'custom') {
 								Twinkle.protect.doCustomExpiry(e.target);
@@ -362,6 +404,80 @@ Twinkle.protect.callback.changeAction = function twinkleprotectCallbackChangeAct
 							{ label: '自訂…', value: 'custom' }
 						])
 					});
+				if (mw.loader.getState('ext.flaggedRevs.review')) {
+					field2.append({
+							type: 'checkbox',
+							name: 'pcmodify',
+							event: Twinkle.protect.formevents.pcmodify,
+							list: [
+								{
+									label: wgULS('修改修订巡查保护', '修改修訂巡查保護'),
+									value: 'pcmodify',
+									tooltip: wgULS('如果此项关闭，修订巡查保护等级及终止时间将不会修改。', '如果此項關閉，修訂巡查保護等級及終止時間將不會修改。'),
+									checked: true,
+									disabled: (mw.config.get('wgNamespaceNumber') !== 0 && mw.config.get('wgNamespaceNumber') !== 4) // Hardcoded until [[phab:T218479]]
+								}
+							]
+						});
+					var pclevel = field2.append({
+							type: 'select',
+							name: 'pclevel',
+							label: wgULS('修订巡查：', '修訂巡查：'),
+							event: Twinkle.protect.formevents.pclevel
+						});
+					pclevel.append({
+							type: 'option',
+							label: wgULS('无', '無'),
+							value: 'none',
+							selected: true
+						});
+					pclevel.append({
+							type: 'option',
+							label: wgULS('修订巡查', '修訂巡查'),
+							value: 'autoconfirmed'
+						});
+					field2.append({
+							type: 'select',
+							name: 'pcexpiry',
+							label: wgULS('终止时间：', '終止時間：'),
+							event: function(e) {
+								if (e.target.value === 'custom') {
+									Twinkle.protect.doCustomExpiry(e.target);
+								}
+							},
+							list: wgULS([
+								{ label: '1小时', value: '1 hour' },
+								{ label: '2小时', value: '2 hours' },
+								{ label: '3小时', value: '3 hours' },
+								{ label: '6小时', value: '6 hours' },
+								{ label: '1日', value: '1 day' },
+								{ label: '3日', value: '3 days' },
+								{ label: '1周', value: '1 week' },
+								{ label: '2周', value: '2 weeks' },
+								{ label: '1月', selected: true, value: '1 month' },
+								{ label: '3月', value: '3 months' },
+								{ label: '6月', value: '6 months' },
+								{ label: '1年', value: '1 year' },
+								{ label: '无限期', value: 'indefinite' },
+								{ label: '自定义…', value: 'custom' }
+							], [
+								{ label: '1小時', value: '1 hour' },
+								{ label: '2小時', value: '2 hours' },
+								{ label: '3小時', value: '3 hours' },
+								{ label: '6小時', value: '6 hours' },
+								{ label: '1日', value: '1 day' },
+								{ label: '3日', value: '3 days' },
+								{ label: '1周', value: '1 week' },
+								{ label: '2周', value: '2 weeks' },
+								{ label: '1月', selected: true, value: '1 month' },
+								{ label: '3月', value: '3 months' },
+								{ label: '6月', value: '6 months' },
+								{ label: '1年', value: '1 year' },
+								{ label: '無限期', value: 'indefinite' },
+								{ label: '自訂…', value: 'custom' }
+							])
+						});
+				}
 			} else {  // for non-existing pages
 				var createlevel = field2.append({
 						type: 'select',
@@ -563,6 +679,14 @@ Twinkle.protect.formevents = {
 		e.target.form.moveexpiry.disabled = !e.target.checked || (e.target.form.movelevel.value === 'all');
 		e.target.form.movelevel.style.color = e.target.form.moveexpiry.style.color = (e.target.checked ? "" : "transparent");
 	},
+	pcmodify: function twinkleprotectFormPcmodifyEvent(e) {
+		e.target.form.pclevel.disabled = !e.target.checked;
+		e.target.form.pcexpiry.disabled = !e.target.checked || (e.target.form.pclevel.value === 'none');
+		e.target.form.pclevel.style.color = e.target.form.pcexpiry.style.color = (e.target.checked ? "" : "transparent");
+	},
+	pclevel: function twinkleprotectFormPclevelEvent(e) {
+		e.target.form.pcexpiry.disabled = (e.target.value === 'none');
+	},
 	movelevel: function twinkleprotectFormMovelevelEvent(e) {
 		e.target.form.moveexpiry.disabled = (e.target.value === 'all');
 	},
@@ -612,6 +736,16 @@ Twinkle.protect.protectionTypesAdmin = wgULS([
 		]
 	},
 	{
+		label: '修订巡查',
+		list: [
+			{ label: '常规（修订巡查）', value: 'pp-pc-protected' },
+			{ label: '长期破坏（修订巡查）', value: 'pp-pc-vandalism' },
+			{ label: '扰乱性编辑（修订巡查）', value: 'pp-pc-disruptive' },
+			{ label: '添加没有来源的内容（修订巡查）', value: 'pp-pc-unsourced' },
+			{ label: '违反生者传记方针（修订巡查）', value: 'pp-pc-blp' }
+		]
+	},
+	{
 		label: '移动保护',
 		list: [
 			{ label: '常规（移动）', value: 'pp-move' },
@@ -642,6 +776,16 @@ Twinkle.protect.protectionTypesAdmin = wgULS([
 			{ label: '傀儡破壞（半）', value: 'pp-semi-sock' },
 			{ label: '高風險模板（半）', value: 'pp-semi-template' },
 			{ label: '已封禁用戶的討論頁（半）', value: 'pp-semi-usertalk' }
+		]
+	},
+	{
+		label: '修訂巡查',
+		list: [
+			{ label: '常規（修訂巡查）', value: 'pp-pc-protected' },
+			{ label: '長期破壞（修訂巡查）', value: 'pp-pc-vandalism' },
+			{ label: '擾亂性編輯（修訂巡查）', value: 'pp-pc-disruptive' },
+			{ label: '添加沒有來源的內容（修訂巡查）', value: 'pp-pc-unsourced' },
+			{ label: '違反生者傳記方針（修訂巡查）', value: 'pp-pc-blp' }
 		]
 	},
 	{
@@ -685,6 +829,7 @@ Twinkle.protect.protectionTypesCreate = wgULS([
 ]).concat(Twinkle.protect.protectionTypesCreateOnly);
 
 // NOTICE: keep this synched with [[MediaWiki:Protect-dropdown]]
+// Also note: stabilize = Pending Changes level
 Twinkle.protect.protectionPresetsInfo = wgULS({
 	'pp-protected': {
 		edit: 'sysop',
@@ -753,6 +898,31 @@ Twinkle.protect.protectionPresetsInfo = wgULS({
 		reason: null,
 		template: 'pp-protected'
 	},
+	'pp-pc-vandalism': {
+		stabilize: 'autoconfirmed',  // stabilize = Pending Changes
+		reason: '被IP用户或新用户破坏',
+		template: 'pp-pc'
+	},
+	'pp-pc-disruptive': {
+		stabilize: 'autoconfirmed',
+		reason: '防止扰乱性编辑',
+		template: 'pp-pc'
+	},
+	'pp-pc-unsourced': {
+		stabilize: 'autoconfirmed',
+		reason: '防止加入[[WP:INTREF|没有或很少来源的内容]]',
+		template: 'pp-pc'
+	},
+	'pp-pc-blp': {
+		stabilize: 'autoconfirmed',
+		reason: 'IP用户或新用户违反生者传记方针',
+		template: 'pp-pc'
+	},
+	'pp-pc-protected': {
+		stabilize: 'autoconfirmed',
+		reason: null,
+		template: 'pp-pc'
+	},
 	'pp-move': {
 		move: 'sysop',
 		reason: null
@@ -773,6 +943,7 @@ Twinkle.protect.protectionPresetsInfo = wgULS({
 	'unprotect': {
 		edit: 'all',
 		move: 'all',
+		stabilize: 'none',
 		create: 'all',
 		reason: null,
 		template: 'none'
@@ -856,6 +1027,31 @@ Twinkle.protect.protectionPresetsInfo = wgULS({
 		reason: null,
 		template: 'pp-protected'
 	},
+	'pp-pc-vandalism': {
+		stabilize: 'autoconfirmed',  // stabilize = Pending Changes
+		reason: '被IP用戶或新用戶破壞',
+		template: 'pp-pc'
+	},
+	'pp-pc-disruptive': {
+		stabilize: 'autoconfirmed',
+		reason: '防止擾亂性編輯',
+		template: 'pp-pc'
+	},
+	'pp-pc-unsourced': {
+		stabilize: 'autoconfirmed',
+		reason: '防止加入[[WP:INTREF|沒有或很少來源的內容]]',
+		template: 'pp-pc'
+	},
+	'pp-pc-blp': {
+		stabilize: 'autoconfirmed',
+		reason: 'IP用戶或新用戶違反生者傳記方針',
+		template: 'pp-pc'
+	},
+	'pp-pc-protected': {
+		stabilize: 'autoconfirmed',
+		reason: null,
+		template: 'pp-pc'
+	},
 	'pp-move': {
 		move: 'sysop',
 		reason: null
@@ -876,6 +1072,7 @@ Twinkle.protect.protectionPresetsInfo = wgULS({
 	'unprotect': {
 		edit: 'all',
 		move: 'all',
+		stabilize: 'none',
 		create: 'all',
 		reason: null,
 		template: 'none'
@@ -929,6 +1126,12 @@ Twinkle.protect.protectionTags = wgULS([
 		]
 	},
 	{
+		label: '修订巡查保护模板',
+		list: [
+			{ label: '{{pp-pc}}：修订巡查', value: 'pp-pc' }
+		]
+	},
+	{
 		label: '移动保护模板',
 		list: [
 			{ label: '{{pp-move-dispute}}: 争议', value: 'pp-move-dispute' },
@@ -968,6 +1171,12 @@ Twinkle.protect.protectionTags = wgULS([
 			{ label: '{{pp-semi-sock}}: 傀儡', value: 'pp-semi-sock' },
 			{ label: '{{pp-semi-blp}}: 生者傳記', value: 'pp-semi-blp' },
 			{ label: '{{pp-semi-indef}}: 長期', value: 'pp-semi-indef' }
+		]
+	},
+	{
+		label: '修訂巡查保護模板',
+		list: [
+			{ label: '{{pp-pc}}：修訂巡查', value: 'pp-pc' }
 		]
 	},
 	{
@@ -1020,6 +1229,16 @@ Twinkle.protect.callback.changePreset = function twinkleprotectCallbackChangePre
 			} else {
 				form.movemodify.checked = false;
 				Twinkle.protect.formevents.movemodify({ target: form.movemodify });
+			}
+
+			if (item.stabilize) {
+				form.pcmodify.checked = true;
+				Twinkle.protect.formevents.pcmodify({ target: form.pcmodify });
+				form.pclevel.value = item.stabilize;
+				Twinkle.protect.formevents.pclevel({ target: form.pclevel });
+			} else if (form.pcmodify) {
+				form.pcmodify.checked = false;
+				Twinkle.protect.formevents.pcmodify({ target: form.pcmodify });
 			}
 		} else {
 			if (item.create) {
@@ -1112,6 +1331,15 @@ Twinkle.protect.callback.evaluate = function twinkleprotectCallbackEvaluate(e) {
 				}
 			};
 
+			var stabilizeValues = {};
+			if (form.pclevel) {
+				stabilizeValues = {
+					pclevel: form.pclevel.value,
+					pcexpiry: form.pcexpiry.value,
+					protectReason: form.protectReason.value
+				};
+			}
+
 			var protectIt = function twinkleprotectCallbackProtectIt(next) {
 				thispage = new Morebits.wiki.page(mw.config.get('wgPageName'), wgULS("保护页面", "保護頁面"));
 				if (mw.config.get('wgArticleId')) {
@@ -1143,9 +1371,39 @@ Twinkle.protect.callback.evaluate = function twinkleprotectCallbackEvaluate(e) {
 				thispage.protect(next);
 			};
 
+			var stabilizeIt = function twinkleprotectCallbackStabilizeIt() {
+				if (thispage) {
+					thispage.getStatusElement().info("完成");
+				}
+
+				thispage = new Morebits.wiki.page(mw.config.get('wgPageName'), wgULS('施行修订巡查保护', '施行修訂巡查保護'));
+				thispage.setFlaggedRevs(stabilizeValues.pclevel, stabilizeValues.pcexpiry);
+
+				if (stabilizeValues.protectReason) {
+					thispage.setEditSummary(stabilizeValues.protectReason);
+				} else {
+					alert(wgULS("您必须输入保护理由，这将被记录在保护日志中。", "您必須輸入保護理由，這將被記錄在保護日誌中。"));
+					return;
+				}
+
+				if (!statusInited) {
+					Morebits.simpleWindow.setButtonsEnabled(false);
+					Morebits.status.init(form);
+					statusInited = true;
+				}
+
+				thispage.stabilize(allDone);
+			};
+
 			if ((form.editmodify && form.editmodify.checked) || (form.movemodify && form.movemodify.checked) ||
 				!mw.config.get('wgArticleId')) {
-				protectIt(allDone);
+				if (form.pcmodify && form.pcmodify.checked) {
+					protectIt(stabilizeIt);
+				} else {
+					protectIt(allDone);
+				}
+			} else if (form.pcmodify && form.pcmodify.checked) {
+				stabilizeIt();
 			} else {
 				alert(wgULS("请告诉Twinkle要做什么！\n如果您只是想标记该页，请选择上面的“用保护模板标记此页”选项。", "請告訴Twinkle要做什麼！\n如果您只是想標記該頁，請選擇上面的「用保護模板標記此頁」選項。"));
 			}
@@ -1183,6 +1441,13 @@ Twinkle.protect.callback.evaluate = function twinkleprotectCallbackEvaluate(e) {
 				case 'pp-semi-blp':
 				case 'pp-semi-protected':
 					typename = '半保护';
+					break;
+				case 'pp-pc-vandalism':
+				case 'pp-pc-blp':
+				case 'pp-pc-protected':
+				case 'pp-pc-unsourced':
+				case 'pp-pc-disruptive':
+					typename = '修訂巡查';
 					break;
 				case 'pp-move':
 				case 'pp-move-dispute':
