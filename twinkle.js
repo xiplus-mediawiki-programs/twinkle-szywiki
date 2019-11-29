@@ -126,7 +126,7 @@ Twinkle.defaultConfig.twinkle = {
 	batchProtectChunks: 50,
 	batchundeleteChunks: 50,
 	proddeleteChunks: 50,
-	revisionTags: 'Twinkle',
+	revisionTags: '',
 	configPage: 'misaungayay:Xiplus/Twinkle/Preferences',
 	projectNamespaceName: mw.config.get('wgFormattedNamespaces')[4],
 	sandboxPage: 'Wikipedia:沙盒'
