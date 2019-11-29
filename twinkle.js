@@ -129,7 +129,7 @@ Twinkle.defaultConfig.twinkle = {
 	revisionTags: '',
 	configPage: 'misaungayay:Xiplus/Twinkle/Preferences',
 	projectNamespaceName: mw.config.get('wgFormattedNamespaces')[4],
-	sandboxPage: 'Wikipedia:沙盒'
+	sandboxPage: 'Wikipitiya:沙盒'
 };
 
 // now some skin dependent config.
@@ -181,11 +181,6 @@ Twinkle.defaultConfig.friendly = {
 };
 
 Twinkle.getPref = function twinkleGetPref(name) {
-	// Temporarily disable summaryAd
-	if ($.inArray(name, ['summaryAd', 'deletionSummaryAd', 'protectionSummaryAd', 'blockSummaryAd']) !== -1) {
-		return '';
-	}
-
 	var result;
 	if (typeof Twinkle.prefs === 'object' && typeof Twinkle.prefs.twinkle === 'object') {
 		// look in Twinkle.prefs (twinkleoptions.js)
