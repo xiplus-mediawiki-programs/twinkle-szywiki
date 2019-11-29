@@ -127,7 +127,7 @@ Twinkle.defaultConfig.twinkle = {
 	batchundeleteChunks: 50,
 	proddeleteChunks: 50,
 	revisionTags: 'Twinkle',
-	configPage: 'Wikipedia:Twinkle/参数设置',
+	configPage: 'misaungayay:Xiplus/Twinkle/Preferences',
 	projectNamespaceName: mw.config.get('wgFormattedNamespaces')[4],
 	sandboxPage: 'Wikipedia:沙盒'
 };
@@ -478,38 +478,38 @@ Twinkle.load = function () {
 	}
 
 	// Set custom Api-User-Agent header, for server-side logging purposes
-	Morebits.wiki.api.setApiUserAgent('Twinkle~zh~/2.0 (' + mw.config.get('wgDBname') + ')');
+	Morebits.wiki.api.setApiUserAgent('Twinkle~szy~/2.0 (' + mw.config.get('wgDBname') + ')');
 
 	// Load the modules in the order that the tabs should appear
 	// User/user talk-related
-	Twinkle.arv();
-	Twinkle.warn();
-	if (Morebits.userIsInGroup('sysop')) {
-		Twinkle.block();
-	}
+	// Twinkle.arv();
+	// Twinkle.warn();
+	// if (Morebits.userIsInGroup('sysop')) {
+	// 	Twinkle.block();
+	// }
 	// Twinkle.shared();
-	Twinkle.talkback();
+	// Twinkle.talkback();
 	// Deletion
-	Twinkle.speedy();
-	Twinkle.copyvio();
-	Twinkle.xfd();
-	Twinkle.image();
+	// Twinkle.speedy();
+	// Twinkle.copyvio();
+	// Twinkle.xfd();
+	// Twinkle.image();
 	// Maintenance
-	Twinkle.protect();
+	// Twinkle.protect();
 	Twinkle.tag();
-	Twinkle.stub();
+	// Twinkle.stub();
 	// Misc. ones last
-	Twinkle.diff();
-	Twinkle.unlink();
-	Twinkle.config.init();
-	Twinkle.fluff.init();
-	if (Morebits.userIsInGroup('sysop')) {
-		Twinkle.batchdelete();
-		Twinkle.batchundelete();
-	}
-	if (Twinkle.getPref('XfdClose') !== 'hide') {
-		Twinkle.close();
-	}
+	// Twinkle.diff();
+	// Twinkle.unlink();
+	// Twinkle.config.init();
+	// Twinkle.fluff.init();
+	// if (Morebits.userIsInGroup('sysop')) {
+	// 	Twinkle.batchdelete();
+	// 	Twinkle.batchundelete();
+	// }
+	// if (Twinkle.getPref('XfdClose') !== 'hide') {
+	// 	Twinkle.close();
+	// }
 
 	Twinkle.addPortletLink(mw.util.wikiScript('index') + '?title=' + Twinkle.getPref('configPage'), wgULS('设置', '設定'), 'tw-config', wgULS('设置Twinkle参数', '設定Twinkle參數'));
 
