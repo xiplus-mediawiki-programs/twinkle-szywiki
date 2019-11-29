@@ -20,7 +20,7 @@ var tests = [];
 
 var ajax = function (title) {
 	return $.ajax({
-		url: 'https://zh.wikipedia.org/w/index.php?title=' + title + '&action=raw&ctype=text/javascript',
+		url: 'https://szy.wikipedia.org/w/index.php?title=' + title + '&action=raw&ctype=text/javascript',
 		dataType: 'text'
 	});
 };
@@ -47,29 +47,29 @@ var message = function (text) {
 
 tests.push({ name: 'morebits.js', test: true });
 tests.push({ name: 'twinkle.js', test: true });
-tests.push({ name: 'modules/twinklearv.js', test: true });
-tests.push({ name: 'modules/twinklewarn.js', test: true });
-tests.push({ name: 'modules/friendlyshared.js', test: true });
+// tests.push({ name: 'modules/twinklearv.js', test: true });
+// tests.push({ name: 'modules/twinklewarn.js', test: true });
+// tests.push({ name: 'modules/friendlyshared.js', test: true });
 tests.push({ name: 'modules/friendlytag.js', test: true });
-tests.push({ name: 'modules/friendlytalkback.js', test: true });
-tests.push({ name: 'modules/twinklebatchdelete.js', test: true });
-tests.push({ name: 'modules/twinklebatchundelete.js', test: true });
-tests.push({ name: 'modules/twinkleblock.js', test: true });
-tests.push({ name: 'modules/twinkleclose.js', test: true });
-tests.push({ name: 'modules/twinkleconfig.js', test: true });
-tests.push({ name: 'modules/twinklecopyvio.js', test: true });
-tests.push({ name: 'modules/twinkledelimages.js', test: true });
-tests.push({ name: 'modules/twinklediff.js', test: true });
-tests.push({ name: 'modules/twinklefluff.js', test: true });
-tests.push({ name: 'modules/twinkleimage.js', test: true });
-tests.push({ name: 'modules/twinkleprotect.js', test: true });
-tests.push({ name: 'modules/twinklespeedy.js', test: true });
-tests.push({ name: 'modules/twinklestub.js', test: true });
-tests.push({ name: 'modules/twinkleunlink.js', test: true });
-tests.push({ name: 'modules/twinklexfd.js', test: true });
+// tests.push({ name: 'modules/friendlytalkback.js', test: true });
+// tests.push({ name: 'modules/twinklebatchdelete.js', test: true });
+// tests.push({ name: 'modules/twinklebatchundelete.js', test: true });
+// tests.push({ name: 'modules/twinkleblock.js', test: true });
+// tests.push({ name: 'modules/twinkleclose.js', test: true });
+// tests.push({ name: 'modules/twinkleconfig.js', test: true });
+// tests.push({ name: 'modules/twinklecopyvio.js', test: true });
+// tests.push({ name: 'modules/twinkledelimages.js', test: true });
+// tests.push({ name: 'modules/twinklediff.js', test: true });
+// tests.push({ name: 'modules/twinklefluff.js', test: true });
+// tests.push({ name: 'modules/twinkleimage.js', test: true });
+// tests.push({ name: 'modules/twinkleprotect.js', test: true });
+// tests.push({ name: 'modules/twinklespeedy.js', test: true });
+// tests.push({ name: 'modules/twinklestub.js', test: true });
+// tests.push({ name: 'modules/twinkleunlink.js', test: true });
+// tests.push({ name: 'modules/twinklexfd.js', test: true });
 
 mw.loader.using(['mediawiki.user', 'mediawiki.util', 'mediawiki.notify', 'mediawiki.Title', 'jquery.ui', 'jquery.tipsy', 'jquery.chosen']).done(function () {
-	mw.loader.load('https://zh.wikipedia.org/w/index.php?title=User:Xiplus/Twinkle/morebits.css&action=raw&ctype=text/css', 'text/css');
+	mw.loader.load('https://szy.wikipedia.org/w/index.php?title=User:Xiplus/Twinkle/morebits.css&action=raw&ctype=text/css', 'text/css');
 
 	var i = 0;
 	// var finished = 0;

@@ -16,13 +16,13 @@
 Twinkle.tag = function friendlytag() {
 	// redirect tagging
 	if (Morebits.wiki.isPageRedirect()) {
-		Twinkle.tag.mode = '重定向';
-		Twinkle.addPortletLink(Twinkle.tag.callback, wgULS('标记', '標記'), 'friendly-tag', wgULS('标记重定向', '標記重定向'));
+		// Twinkle.tag.mode = '重定向';
+		// Twinkle.addPortletLink(Twinkle.tag.callback, wgULS('标记', '標記'), 'friendly-tag', wgULS('标记重定向', '標記重定向'));
 	// file tagging
 	} else if (mw.config.get('wgNamespaceNumber') === 6 && !document.getElementById('mw-sharedupload') && document.getElementById('mw-imagepage-section-filehistory')) {
-		Twinkle.tag.mode = wgULS('文件', '檔案');
+		// Twinkle.tag.mode = wgULS('文件', '檔案');
 
-		Twinkle.addPortletLink(Twinkle.tag.callback, wgULS('标记', '標記'), 'friendly-tag', wgULS('标记文件', '標記檔案'));
+		// Twinkle.addPortletLink(Twinkle.tag.callback, wgULS('标记', '標記'), 'friendly-tag', wgULS('标记文件', '標記檔案'));
 	// article/draft tagging
 	} else if (([0, 118].indexOf(mw.config.get('wgNamespaceNumber')) !== -1 && mw.config.get('wgCurRevisionId')) || (Morebits.pageNameNorm === Twinkle.getPref('sandboxPage'))) {
 		Twinkle.tag.mode = wgULS('条目', '條目');
@@ -310,21 +310,6 @@ Twinkle.tag.updateSortOrder = function(e) {
 			checkbox.checked = true;
 		}
 		switch (tag) {
-			case 'Expand language':
-				checkbox.subgroup = {
-					name: 'expandLanguage',
-					type: 'input',
-					label: wgULS('外语版本语言代码（必填）：', '外語版本語言代碼（必填）：')
-				};
-				break;
-			case 'Expert':
-				checkbox.subgroup = {
-					name: 'expert',
-					type: 'input',
-					label: wgULS('哪个领域的专家：', '哪個領域的專家：'),
-					tooltip: wgULS('可选，可参考 Category:需要专业人士关注的页面 使用现存的分类。', '選填，可參考 Category:需要专业人士关注的页面 使用現存的分類。')
-				};
-				break;
 			case 'Merge':
 			case 'Merge from':
 			case 'Merge to':
@@ -369,44 +354,6 @@ Twinkle.tag.updateSortOrder = function(e) {
 						tooltip: wgULS('可选，但强烈推荐。如不需要请留空。仅在只输入了一个条目名时可用。', '可選，但強烈推薦。如不需要請留空。僅在只輸入了一個條目名時可用。')
 					});
 				}
-				break;
-			case 'Missing information':
-				checkbox.subgroup = {
-					name: 'missingInformation',
-					type: 'input',
-					label: wgULS('缺少的内容（必填）：', '缺少的內容（必填）：'),
-					tooltip: wgULS('必填，显示为“缺少有关……的资讯。”', '必填，顯示為「缺少有關……的資訊。」。')
-				};
-				break;
-			case 'Notability':
-				checkbox.subgroup = {
-					name: 'notability',
-					type: 'select',
-					list: [
-						{ label: '{{notability}}：' + wgULS('通用的关注度指引', '通用的關注度指引'), value: 'none' },
-						{ label: '{{notability|Biographies}}：' + wgULS('人物传记', '人物傳記'), value: 'Biographies' },
-						{ label: '{{notability|Book}}：' + wgULS('书籍', '書籍'), value: 'Book' },
-						{ label: '{{notability|Number}}：' + wgULS('数字', '數字'), value: 'Number' },
-						{ label: '{{notability|Fiction}}：' + wgULS('虚构事物', '虛構事物'), value: 'Fiction' },
-						{ label: '{{notability|Neologisms}}：' + wgULS('发明、研究', '發明、研究'), value: 'Neologisms' },
-						{ label: '{{notability|Web}}：' + wgULS('网站、网络内容', '網站、網路內容'), value: 'Web'}
-					]
-				};
-				break;
-			case 'Requested move':
-				checkbox.subgroup = [
-					{
-						name: 'moveTarget',
-						type: 'input',
-						label: wgULS('新名称：', '新名稱：')
-					},
-					{
-						name: 'moveReason',
-						type: 'textarea',
-						label: wgULS('移动理由（会被贴上这条目的讨论页）：', '移動理由（會被貼上這條目的討論頁）：'),
-						tooltip: wgULS('可选，但强烈推荐。如不需要请留空。', '可選，但強烈推薦。如不需要請留空。')
-					}
-				];
 				break;
 			default:
 				break;
@@ -573,131 +520,13 @@ Twinkle.tag.article = {};
 // To ensure tags appear in the default "categorized" view, add them to the tagCategories hash below.
 
 Twinkle.tag.article.tags = wgULS({
-	'Advert': '类似广告或宣传性内容',
-	'Autobiography': '类似一篇自传，或内容主要由条目描述的当事人或组织撰写、编辑',
-	'Blpdispute': '可能违反了维基百科关于生者传记的方针',
-	'Blpsources': '生者传记需要补充更多可供查证的来源',
-	'Blpunsourced': '生者传记没有列出任何参考或来源',
-	'Citation style': '引用需要进行清理',
-	'Citecheck': '可能包含不适用或被曲解的引用资料，部分内容的准确性无法被证实',
-	'Cleanup': '可能需要进行清理，以符合维基百科的质量标准',
-	'Cleanup-jargon': '包含过多行话或专业术语，可能需要简化或提出进一步解释',
-	'Coi': '主要贡献者与本条目所宣扬的内容可能存在利益冲突',
-	'Contradict': '内容自相矛盾',
-	'Copyedit': '需要编修，以确保文法、用词、语气、格式、标点等使用恰当',
-	'Copypaste': '内容可能是从某个来源处拷贝后贴上',
-	'Current': '记述新闻动态',
-	'Dead end': '需要加上内部链接以构筑百科全书的链接网络',
-	'Disputed': '内容疑欠准确，有待查证',
-	'Expand language': '可以根据其他语言版本扩充',
-	'Expert': '需要精通或熟悉本主题的专业人士参与及协助编辑',
-	'External links': '使用外部链接的方式可能不符合维基百科的方针或指引',
-	'Fansite': '类似爱好者网页',
-	'Globalize': '仅具有一部分地区的信息或观点',
-	'Hoax': '真实性被质疑',
-	'Howto': '包含指南或教学内容',
-	'Improve categories': '需要更多页面分类',
-	'In-universe': '使用小说故事内的观点描述一个虚构事物',
-	'Inappropriate person': '使用不适当的第一人称和第二人称',
-	'Inappropriate tone': '语调或风格可能不适合百科全书的写作方式',
-	'Lead section': '导言部分也许不足以概括其内容',
-	'Lead section too long': '导言部分也许过于冗长',
 	'Merge': '建议此页面与页面合并',
 	'Merge from': '建议将页面并入本页面',
-	'Merge to': '建议将此页面并入页面',
-	'Missing information': '缺少必要的信息',
-	'Newsrelease': '阅读起来像是新闻稿及包含过度的宣传性语调',
-	'No footnotes': '因为没有内文引用而来源仍然不明',
-	'Non-free': '可能过多或不当地使用了受版权保护的文字、图像或/及多媒体文件',
-	'Notability': '可能不符合通用关注度指引',
-	'Notability Unreferenced': '可能具备关注度，但需要来源加以彰显',
-	'Notmandarin': '包含过多不是现代标准汉语的内容',
-	'Onesource': '极大或完全地依赖于某个单一的来源',
-	'Original research': '可能包含原创研究或未查证内容',
-	'Orphan': '没有或只有很少链入页面',
-	'Overlinked': '含有过多、重复、或不必要的内部链接',
-	'Overly detailed': '包含太多过度细节内容',
-	'Plot': '可能包含过于详细的剧情摘要',
-	'Pov': '中立性有争议。内容、语调可能带有明显的个人观点或地方色彩',
-	'Primarysources': '依赖第一手来源',
-	'Prose': '使用了日期或时间列表式记述，需要改写为连贯的叙述性文字',
-	'Refimprove': '需要补充更多来源',
-	'Requested move': '建议将此页面移动到新名称',
-	'Review': '阅读起来类似评论，需要清理',
-	'Rewrite': '不符合维基百科的质量标准，需要完全重写',
-	'Roughtranslation': '翻译品质不佳',
-	'Substub': '过于短小',
-	'Trivia': '应避免有陈列杂项、琐碎资料的部分',
-	'Uncategorized': '缺少页面分类',
-	'Underlinked': '需要更多内部链接以构筑百科全书的链接网络',
-	'Unencyclopedic': '可能不适合写入百科全书',
-	'Unreferenced': '没有列出任何参考或来源',
-	'Update': '当前条目或章节需要更新',
-	'Verylong': '可能过于冗长',
-	'Weasel': '语意模棱两可而损及其中立性或准确性'
+	'Merge to': '建议将此页面并入页面'
 }, {
-	'Advert': '類似廣告或宣傳性內容',
-	'Autobiography': '類似一篇自傳，或內容主要由條目描述的當事人或組織撰寫、編輯',
-	'Blpdispute': '可能違反了維基百科關於生者傳記的方針',
-	'Blpsources': '生者傳記需要補充更多可供查證的來源',
-	'Blpunsourced': '生者傳記沒有列出任何參考或來源',
-	'Citation style': '引用需要進行清理',
-	'Citecheck': '可能包含不適用或被曲解的引用資料，部分內容的準確性無法被證實',
-	'Cleanup': '可能需要進行清理，以符合維基百科的質量標準',
-	'Cleanup-jargon': '包含過多行話或專業術語，可能需要簡化或提出進一步解釋',
-	'Coi': '主要貢獻者與本條目所宣揚的內容可能存在利益衝突',
-	'Contradict': '內容自相矛盾',
-	'Copyedit': '需要編修，以確保文法、用詞、語氣、格式、標點等使用恰當',
-	'Copypaste': '內容可能是從某個來源處拷貝後貼上',
-	'Current': '記述新聞動態',
-	'Dead end': '需要加上內部連結以構築百科全書的連結網絡',
-	'Disputed': '內容疑欠準確，有待查證',
-	'Expand language': '可以根據其他語言版本擴充',
-	'Expert': '需要精通或熟悉本主題的專業人士參與及協助編輯',
-	'External links': '使用外部連結的方式可能不符合維基百科的方針或指引',
-	'Fansite': '類似愛好者網頁',
-	'Globalize': '僅具有一部分地區的資訊或觀點',
-	'Hoax': '真實性被質疑',
-	'Howto': '包含指南或教學內容',
-	'Improve categories': '需要更多頁面分類',
-	'In-universe': '使用小說故事內的觀點描述一個虛構事物',
-	'Inappropriate person': '使用不適當的第一人稱和第二人稱',
-	'Inappropriate tone': '語調或風格可能不適合百科全書的寫作方式',
-	'Lead section': '導言部分也許不足以概括其內容',
-	'Lead section too long': '導言部分也許過於冗長',
 	'Merge': '建議此頁面與頁面合併',
 	'Merge from': '建議將頁面併入本頁面',
-	'Merge to': '建議將此頁面併入頁面',
-	'Missing information': '缺少必要的信息',
-	'Newsrelease': '閱讀起來像是新聞稿及包含過度的宣傳性語調',
-	'No footnotes': '因為沒有內文引用而來源仍然不明',
-	'Non-free': '可能過多或不當地使用了受版權保護的文字、圖像或/及多媒體檔案',
-	'Notability': '可能不符合通用關注度指引',
-	'Notability Unreferenced': '可能具備關注度，但需要來源加以彰顯',
-	'Notmandarin': '包含過多不是現代標準漢語的內容',
-	'Onesource': '極大或完全地依賴於某個單一的來源',
-	'Original research': '可能包含原創研究或未查證內容',
-	'Orphan': '沒有或只有很少連入頁面',
-	'Overlinked': '含有過多、重複、或不必要的內部連結',
-	'Overly detailed': '包含太多過度細節內容',
-	'Plot': '可能包含過於詳細的劇情摘要',
-	'Pov': '中立性有爭議。內容、語調可能帶有明顯的個人觀點或地方色彩',
-	'Primarysources': '依賴第一手來源',
-	'Prose': '使用了日期或時間列表式記述，需要改寫為連貫的敘述性文字',
-	'Refimprove': '需要補充更多來源',
-	'Requested move': '建議將此頁面移動到新名稱',
-	'Review': '閱讀起來類似評論，需要清理',
-	'Rewrite': '不符合維基百科的質量標準，需要完全重寫',
-	'Roughtranslation': '翻譯品質不佳',
-	'Substub': '過於短小',
-	'Trivia': '應避免有陳列雜項、瑣碎資料的部分',
-	'Uncategorized': '缺少頁面分類',
-	'Underlinked': '需要更多內部連結以構築百科全書的連結網絡',
-	'Unencyclopedic': '可能不適合寫入百科全書',
-	'Unreferenced': '沒有列出任何參考或來源',
-	'Update': '當前條目或章節需要更新',
-	'Verylong': '可能過於冗長',
-	'Weasel': '語意模棱兩可而損及其中立性或準確性'
+	'Merge to': '建議將此頁面併入頁面'
 });
 
 // A list of tags in order of category
@@ -705,507 +534,38 @@ Twinkle.tag.article.tags = wgULS({
 // Add new categories with discretion - the list is long enough as is!
 
 Twinkle.tag.article.tagCategories = wgULS({
-	'清理和维护模板': {
-		'常规清理': [
-			'Cleanup',
-			'Cleanup-jargon',
-			'Copyedit'
-		],
-		'可能多余的内容': [
-			'Copypaste',
-			'External links',
-			'Non-free'
-		],
-		'结构和导言': [
-			'Lead section',
-			'Lead section too long',
-			'Verylong'
-		],
-		'虚构作品相关清理': [
-			'In-universe',
-			'Plot'
-		]
-	},
-	'常规条目问题': {
-		'重要性和知名度': [
-			'Notability',  // has subcategories and special-cased code
-			'Notability Unreferenced'
-		],
-		'写作风格': [
-			'Advert',
-			'Fansite',
-			'Howto',
-			'Inappropriate person',
-			'Inappropriate tone',
-			'Newsrelease',
-			'Prose',
-			'Review'
-		],
-		'内容': [
-			'Missing information', // has subcategories and special-cased code
-			'Expand language', // has subcategories and special-cased code
-			'Substub',
-			'Unencyclopedic'
-		],
-		'信息和细节': [
-			'Expert',
-			'Overly detailed',
-			'Trivia'
-		],
-		'时间性': [
-			'Current',
-			'Update'
-		],
-		'中立、偏见和事实准确性': [
-			'Autobiography',
-			'Coi',
-			'Contradict',
-			'Disputed',
-			'Globalize',
-			'Hoax',
-			'Pov',
-			'Weasel'
-		],
-		'可供查证和来源': [
-			'Blpdispute',
-			'Blpsources',
-			'Blpunsourced',
-			'Citecheck',
-			'No footnotes',
-			'Onesource',
-			'Original research',
-			'Primarysources',
-			'Refimprove',
-			'Unreferenced'
-		]
-	},
-	'具体内容问题': {
-		'语言': [
-			'Notmandarin',
-			'Roughtranslation'
-		],
-		'链接': [
-			'Dead end',
-			'Underlinked',
-			'Orphan',
-			'Overlinked'
-		],
-		'参考技术': [
-			'Citation style'
-		],
-		'分类': [
-			'Improve categories',
-			'Uncategorized'
-		]
-	},
 	'合并': [  // these three have a subgroup with several options
 		'Merge',
 		'Merge from',
 		'Merge to'
-	],
-	'移动': [  // this one have a subgroup with several options
-		'Requested move'
 	]
 }, {
-	'清理和維護模板': {
-		'常規清理': [
-			'Cleanup',
-			'Cleanup-jargon',
-			'Copyedit'
-		],
-		'可能多餘的內容': [
-			'Copypaste',
-			'External links',
-			'Non-free'
-		],
-		'結構和導言': [
-			'Lead section',
-			'Lead section too long',
-			'Verylong'
-		],
-		'虛構作品相關清理': [
-			'In-universe',
-			'Plot'
-		]
-	},
-	'常規條目問題': {
-		'重要性和知名度': [
-			'Notability',  // has subcategories and special-cased code
-			'Notability Unreferenced'
-		],
-		'寫作風格': [
-			'Advert',
-			'Fansite',
-			'Howto',
-			'Inappropriate person',
-			'Inappropriate tone',
-			'Newsrelease',
-			'Prose',
-			'Review'
-		],
-		'內容': [
-			'Missing information', // has subcategories and special-cased code
-			'Expand language', // has subcategories and special-cased code
-			'Substub',
-			'Unencyclopedic'
-		],
-		'資訊和細節': [
-			'Expert',
-			'Overly detailed',
-			'Trivia'
-		],
-		'時間性': [
-			'Current',
-			'Update'
-		],
-		'中立、偏見和事實準確性': [
-			'Autobiography',
-			'Coi',
-			'Contradict',
-			'Disputed',
-			'Globalize',
-			'Hoax',
-			'Pov',
-			'Weasel'
-		],
-		'可供查證和來源': [
-			'Blpdispute',
-			'Blpsources',
-			'Blpunsourced',
-			'Citecheck',
-			'No footnotes',
-			'Onesource',
-			'Original research',
-			'Primarysources',
-			'Refimprove',
-			'Unreferenced'
-		]
-	},
-	'具體內容問題': {
-		'語言': [
-			'Notmandarin',
-			'Roughtranslation'
-		],
-		'連結': [
-			'Dead end',
-			'Underlinked',
-			'Orphan',
-			'Overlinked'
-		],
-		'參考技術': [
-			'Citation style'
-		],
-		'分類': [
-			'Improve categories',
-			'Uncategorized'
-		]
-	},
 	'合併': [  // these three have a subgroup with several options
 		'Merge',
 		'Merge from',
 		'Merge to'
-	],
-	'移動': [  // this one have a subgroup with several options
-		'Requested move'
 	]
 });
 
 // Contains those article tags that *do not* work inside {{multiple issues}}.
 Twinkle.tag.multipleIssuesExceptions = [
-	'Current', // Works but not intended for use in MI
-	'Improve categories',
 	'Merge from',
 	'Merge to',
-	'Merge',
-	'Notability',
-	'Notmandarin',
-	'Requested move',
-	'Substub',
-	'Uncategorized'
+	'Merge'
 ];
 
 // Tags for REDIRECTS start here
 
 Twinkle.tag.frequentList = wgULS([
-	{
-		label: '{{合并重定向}}：保持页面题名至相应主条目，令页面内容在合并后仍能保存其编辑历史',
-		value: '合并重定向'
-	},
-	{
-		label: '{{简繁重定向}}：引导简体至繁体，或繁体至简体',
-		value: '简繁重定向'
-	},
-	{
-		label: '{{关注度重定向}}：缺乏关注度的子主题向有关注度的母主题的重定向',
-		value: '关注度重定向'
-	},
-	{
-		label: '{{模板重定向}}：指向模板的重定向页面',
-		value: '模板重定向'
-	},
-	{
-		label: '{{别名重定向}}：标题的其他名称、笔名、绰号、同义字等',
-		value: '别名重定向'
-	},
-	{
-		label: '{{译名重定向}}：人物、作品等各项事物的其他翻译名称',
-		value: '译名重定向'
-	},
-	{
-		label: '{{缩写重定向}}：标题缩写',
-		value: '缩写重定向'
-	},
-	{
-		label: '{{拼写重定向}}：标题的其他不同拼写',
-		value: '拼写重定向'
-	},
-	{
-		label: '{{错字重定向}}：纠正标题的常见错误拼写或误植',
-		value: '错字重定向'
-	},
-	{
-		label: '{{旧名重定向}}：将事物早前的名称引导至更改后的主题',
-		value: '旧名重定向'
-	},
-	{
-		label: '{{历史名称重定向}}：具有历史意义的别名、笔名、同义词',
-		value: '历史名称重定向'
-	},
-	{
-		label: '{{全名重定向}}：标题的完整或更完整名称',
-		value: '全名重定向'
-	},
-	{
-		label: '{{短名重定向}}：完整标题名称或人物全名的部分、不完整的名称或简称',
-		value: '短名重定向'
-	},
-	{
-		label: '{{姓氏重定向}}：人物姓氏',
-		value: '姓氏重定向'
-	},
-	{
-		label: '{{名字重定向}}：人物人名',
-		value: '名字重定向'
-	},
-	{
-		label: '{{本名重定向}}：人物本名',
-		value: '本名重定向'
-	},
-	{
-		label: '{{非中文重定向}}：非中文标题',
-		value: '非中文重定向'
-	},
-	{
-		label: '{{日文重定向}}：日语名称',
-		value: '日文重定向'
-	}
 ], [
-	{
-		label: '{{合併重定向}}：保持頁面題名至相應主條目，令頁面內容在合併後仍能儲存其編輯歷史',
-		value: '合併重定向'
-	},
-	{
-		label: '{{簡繁重定向}}：引導簡體至繁體，或繁體至簡體',
-		value: '簡繁重定向'
-	},
-	{
-		label: '{{關注度重定向}}：缺乏關注度的子主題向有關注度的母主題的重定向',
-		value: '關注度重定向'
-	},
-	{
-		label: '{{模板重定向}}：指向模板的重定向頁面',
-		value: '模板重定向'
-	},
-	{
-		label: '{{別名重定向}}：標題的其他名稱、筆名、綽號、同義字等',
-		value: '別名重定向'
-	},
-	{
-		label: '{{譯名重定向}}：人物、作品等各項事物的其他翻譯名稱',
-		value: '譯名重定向'
-	},
-	{
-		label: '{{縮寫重定向}}：標題縮寫',
-		value: '縮寫重定向'
-	},
-	{
-		label: '{{拼寫重定向}}：標題的其他不同拼寫',
-		value: '拼寫重定向'
-	},
-	{
-		label: '{{錯字重定向}}：糾正標題的常見錯誤拼寫或誤植',
-		value: '錯字重定向'
-	},
-	{
-		label: '{{舊名重定向}}：將事物早前的名稱引導至更改後的主題',
-		value: '舊名重定向'
-	},
-	{
-		label: '{{歷史名稱重定向}}：具有歷史意義的別名、筆名、同義詞',
-		value: '歷史名稱重定向'
-	},
-	{
-		label: '{{全名重定向}}：標題的完整或更完整名稱',
-		value: '全名重定向'
-	},
-	{
-		label: '{{短名重定向}}：完整標題名稱或人物全名的部分、不完整的名稱或簡稱',
-		value: '短名重定向'
-	},
-	{
-		label: '{{姓氏重定向}}：人物姓氏',
-		value: '姓氏重定向'
-	},
-	{
-		label: '{{名字重定向}}：人物人名',
-		value: '名字重定向'
-	},
-	{
-		label: '{{本名重定向}}：人物本名',
-		value: '本名重定向'
-	},
-	{
-		label: '{{非中文重定向}}：非中文標題',
-		value: '非中文重定向'
-	},
-	{
-		label: '{{日文重定向}}：日語名稱',
-		value: '日文重定向'
-	}
 ]);
 
 Twinkle.tag.lessFrequentList = wgULS([
-	{
-		label: '{{角色重定向}}：电视剧、电影、书籍等作品的角色',
-		value: '角色重定向'
-	},
-	{
-		label: '{{章节重定向}}：导向至较高密度组织的页面',
-		value: '章节重定向'
-	},
-	{
-		label: '{{列表重定向}}：导向至低密度的列表',
-		value: '列表重定向'
-	},
-	{
-		label: '{{可能性重定向}}：导向至当前提供内容更为详尽的目标页面',
-		value: '可能性重定向'
-	},
-	{
-		label: '{{关联字重定向}}：标题名称关联字',
-		value: '关联字重定向'
-	},
-	{
-		label: '{{条目请求重定向}}：需要独立条目的页面',
-		value: '条目请求重定向'
-	},
-	{
-		label: '{{快捷方式重定向}}：维基百科快捷方式',
-		value: '快捷方式重定向'
-	}
 ], [
-	{
-		label: '{{角色重定向}}：電視劇、電影、書籍等作品的角色',
-		value: '角色重定向'
-	},
-	{
-		label: '{{章節重定向}}：導向至較高密度組織的頁面',
-		value: '章節重定向'
-	},
-	{
-		label: '{{列表重定向}}：導向至低密度的列表',
-		value: '列表重定向'
-	},
-	{
-		label: '{{可能性重定向}}：導向至當前提供內容更為詳盡的目標頁面',
-		value: '可能性重定向'
-	},
-	{
-		label: '{{關聯字重定向}}：標題名稱關聯字',
-		value: '關聯字重定向'
-	},
-	{
-		label: '{{條目請求重定向}}：需要獨立條目的頁面',
-		value: '條目請求重定向',
-		subgroup: [
-			{
-				name: 'reqArticleLang',
-				type: 'input',
-				label: wgULS('外语语言代码：', '外語語言代碼：'),
-				tooltip: wgULS('使用ISO 639代码', '使用ISO 639代碼')
-			},
-			{
-				name: 'reqArticleTitle',
-				type: 'input',
-				label: wgULS('外语页面名称：', '外語頁面名稱：'),
-				size: 60
-			}
-		]
-	},
-	{
-		label: '{{快捷方式重定向}}：維基百科快捷方式',
-		value: '快捷方式重定向'
-	}
 ]);
 
 Twinkle.tag.rareList = wgULS([
-	{
-		label: '{{词组重定向}}：将词组/词组/成语指向切题的条目及恰当章节',
-		value: '词组重定向'
-	},
-	{
-		label: '{{消歧义页重定向}}：指向消歧义页',
-		value: '消歧义页重定向'
-	},
-	{
-		label: '{{域名重定向}}：网域名称',
-		value: '域名重定向'
-	},
-	{
-		label: '{{年代重定向}}：于年份条目导向至年代条目',
-		value: '年代重定向'
-	},
-	{
-		label: '{{用户框模板重定向}}：用户框模板',
-		value: '用户框模板重定向'
-	},
-	{
-		label: '{{重定向模板用重定向}}：导向至重定向模板',
-		value: '重定向模板用重定向'
-	},
-	{
-		label: '{{EXIF重定向}}：JPEG图像包含EXIF信息',
-		value: 'EXIF重定向'
-	}
 ], [
-	{
-		label: '{{詞組重定向}}：將詞組/詞組/成語指向切題的條目及恰當章節',
-		value: '詞組重定向'
-	},
-	{
-		label: '{{消歧義頁重定向}}：指向消歧義頁',
-		value: '消歧義頁重定向'
-	},
-	{
-		label: '{{域名重定向}}：網域名稱',
-		value: '域名重定向'
-	},
-	{
-		label: '{{年代重定向}}：於年份條目導向至年代條目',
-		value: '年代重定向'
-	},
-	{
-		label: '{{用戶框模板重定向}}：用戶框模板',
-		value: '用戶框模板重定向'
-	},
-	{
-		label: '{{重定向模板用重定向}}：導向至重定向模板',
-		value: '重定向模板用重定向'
-	},
-	{
-		label: '{{EXIF重定向}}：JPEG圖檔包含EXIF資訊',
-		value: 'EXIF重定向'
-	}
 ]);
 
 // maintenance tags for FILES start here
@@ -1213,39 +573,19 @@ Twinkle.tag.rareList = wgULS([
 Twinkle.tag.file = {};
 
 Twinkle.tag.file.licenseList = wgULS([
-	{ label: '{{Non-free reduce}}：非低分辨率的合理使用图像（或过长的音频剪辑等）', value: 'Non-free reduce' }
 ], [
-	{ label: '{{Non-free reduce}}：非低解析度的合理使用圖像（或過長的音頻剪輯等）', value: 'Non-free reduce' }
 ]);
 
 Twinkle.tag.file.commonsList = wgULS([
-	{ label: '{{Copy to Commons}}：自由版权文件应该被移动至维基共享资源', value: 'Copy to Commons' },
-	{ label: '{{Do not move to Commons}}：不要移动至维基共享资源', value: 'Do not move to Commons_reason' },
-	{ label: '{{Keep local}}：请求在本地保留维基共享资源的文件副本', value: 'Keep local' },
-	{ label: '{{Now Commons}}：文件已被复制到维基共享资源（CSD F7）', value: 'subst:ncd' }
 ], [
-	{ label: '{{Copy to Commons}}：自由版權檔案應該被移動至維基共享資源', value: 'Copy to Commons' },
-	{ label: '{{Do not move to Commons}}：不要移動至維基共享資源', value: 'Do not move to Commons_reason' },
-	{ label: '{{Keep local}}：請求在本地保留維基共享資源的檔案副本', value: 'Keep local' },
-	{ label: '{{Now Commons}}：檔案已被複製到維基共享資源（CSD F7）', value: 'subst:ncd' }
 ]);
 
 Twinkle.tag.file.cleanupList = wgULS([
-	{ label: '{{Imagewatermark}}：图像包含了水印', value: 'Imagewatermark' },
-	{ label: '{{Rename media}}：文件应该根据文件名称指引被重命名', value: 'Rename media' },
-	{ label: '{{Should be SVG}}：PNG、GIF、JPEG文件应该重制成矢量图形', value: 'Should be SVG' }
 ], [
-	{ label: '{{Imagewatermark}}：圖像包含了浮水印', value: 'Imagewatermark' },
-	{ label: '{{Rename media}}：檔案應該根據檔案名稱指引被重新命名', value: 'Rename media' },
-	{ label: '{{Should be SVG}}：PNG、GIF、JPEG檔案應該重製成向量圖形', value: 'Should be SVG' }
 ]);
 
 Twinkle.tag.file.replacementList = wgULS([
-	{ label: '{{Obsolete}}：有新版本可用的过时文件', value: 'Obsolete' },
-	{ label: '{{Vector version available}}：有矢量图形可用的非矢量图形文件', value: 'Vector version available' }
 ], [
-	{ label: '{{Obsolete}}：有新版本可用的過時檔案', value: 'Obsolete' },
-	{ label: '{{Vector version available}}：有向量圖形可用的非向量圖形檔案', value: 'Vector version available' }
 ]);
 
 
@@ -1468,19 +808,6 @@ Twinkle.tag.callbacks = {
 				currentTag += '{{' + tagName;
 				// fill in other parameters, based on the tag
 				switch (tagName) {
-					case 'Expand language':
-						if (params.tagParameters.expandLanguage) {
-							currentTag += '|1=' + params.tagParameters.expandLanguage;
-						} else {
-							Morebits.status.warn(wgULS('信息', '資訊'), wgULS('{{Expand language}}已略过，因为你没有输入必填的参数。', '{{Expand language}}已略過，因為你沒有輸入必填的參數。'));
-							return;
-						}
-						break;
-					case 'Expert':
-						if (params.tagParameters.expert) {
-							currentTag += '|subject=' + params.tagParameters.expert;
-						}
-						break;
 					case 'Merge':
 					case 'Merge to':
 					case 'Merge from':
@@ -1501,22 +828,6 @@ Twinkle.tag.callbacks = {
 								}
 								currentTag += '|discuss=Talk:' + params.discussArticle + '#' + params.talkDiscussionTitle;
 							}
-						}
-						break;
-					case 'Missing information':
-						if (params.tagParameters.missingInformation) {
-							currentTag += '|1=' + params.tagParameters.missingInformation;
-						} else {
-							Morebits.status.warn(wgULS('信息', '資訊'), wgULS('{{Missing information}}已略过，因为你没有输入必填的参数。', '{{Missing information}}已略過，因為你沒有輸入必填的參數。'));
-							return;
-						}
-						break;
-					case 'Requested move':
-						if (params.moveTarget) {
-							// normalize the move target for now and later
-							params.moveTarget = Morebits.string.toUpperCaseFirstChar(params.moveTarget.replace(/_/g, ' '));
-							params.discussArticle = mw.config.get('wgTitle');
-							currentTag += '|' + params.moveTarget;
 						}
 						break;
 					default:
@@ -1824,60 +1135,8 @@ Twinkle.tag.callbacks = {
 
 				currentTag = '{{' + (tag === 'Do not move to Commons_reason' ? 'Do not move to Commons' : tag);
 
-				var input;
+				// var input;
 				switch (tag) {
-					case 'subst:ncd':
-						/* falls through */
-					case 'Keep local':
-						input = prompt('{{' + (tag === 'subst:ncd' ? 'Now Commons' : tag) +
-							'}} ─ ' + wgULS('输入在共享资源的图像名称（如果不同于本地名称），不包括 File: 前缀。要跳过标记，请单击取消：', '輸入在共享資源的圖像名稱（如果不同於本地名稱），不包括 File: 字首。要跳過標記，請點擊取消：'), '');
-						if (input === null) {
-							return true;  // continue
-						} else if (input !== '') {
-							currentTag += '|1=' + input;
-						}
-						if (tag === 'Keep local') {
-							input = prompt('{{Keep local}} ─ ' + wgULS('输入请求在本地保留文件副本的原因（可选）：', '輸入請求在本地保留檔案副本的原因（可選）：'), '');
-							if (input !== null && input !== '') {
-								currentTag += '|reason=' + input;
-							}
-						}
-						break;
-					case 'Rename media':
-						input = prompt('{{Rename media}} ─ ' + wgULS('输入图像的新名称（可选）：', '輸入圖像的新名稱（可選）：'), '');
-						if (input === null) {
-							return true;  // continue
-						} else if (input !== '') {
-							currentTag += '|1=' + input;
-						}
-						input = prompt('{{Rename media}} ─ ' + wgULS('输入重命名的原因（可选）：', '輸入重命名的原因（可選）：'), '');
-						if (input === null) {
-							return true;  // continue
-						} else if (input !== '') {
-							currentTag += '|2=' + input;
-						}
-						break;
-					case 'Vector version available':
-						/* falls through */
-					case 'Obsolete':
-						input = prompt('{{' + tag + '}} ─ ' + wgULS('输入替换此文件的文件名称（必填）。 要跳过标记，请单击取消：', '輸入替換此檔案的檔案名稱（必填）。 要跳過標記，請點擊取消：'), '');
-						if (input === null) {
-							return true;  // continue
-						} else if (input !== '') {
-							currentTag += '|1=' + input;
-						}
-						break;
-					case 'Do not move to Commons_reason':
-						input = prompt('{{Do not move to Commons}} ─ ' + wgULS('输入不应该将该图像移动到维基共享资源的原因（必填）。 要跳过标记，请单击取消：', '輸入不應該將該圖像移動到維基共享資源的原因（必填）。 要跳過標記，請點擊取消：'), '');
-						if (input === null) {
-							return true;  // continue
-						} else if (input !== '') {
-							currentTag += '|reason=' + input;
-						}
-						break;
-					case 'Copy to Commons':
-						currentTag += '|human=' + mw.config.get('wgUserName');
-						break;
 					default:
 						break;  // don't care
 				}
