@@ -813,7 +813,7 @@ Twinkle.tag.callbacks = {
 					case 'Merge from':
 						if (params.mergeTarget) {
 							// normalize the merge target for now and later
-							params.mergeTarget = Morebits.string.toUpperCaseFirstChar(params.mergeTarget.replace(/_/g, ' '));
+							params.mergeTarget = params.mergeTarget.replace(/_/g, ' ');
 
 							currentTag += '|' + params.mergeTarget;
 
