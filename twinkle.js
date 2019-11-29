@@ -484,9 +484,9 @@ Twinkle.load = function () {
 	// User/user talk-related
 	// Twinkle.arv();
 	// Twinkle.warn();
-	// if (Morebits.userIsInGroup('sysop')) {
-	// 	Twinkle.block();
-	// }
+	if (Morebits.userIsInGroup('sysop')) {
+		// Twinkle.block();
+	}
 	// Twinkle.shared();
 	// Twinkle.talkback();
 	// Deletion
@@ -503,13 +503,13 @@ Twinkle.load = function () {
 	// Twinkle.unlink();
 	// Twinkle.config.init();
 	// Twinkle.fluff.init();
-	// if (Morebits.userIsInGroup('sysop')) {
-	// 	Twinkle.batchdelete();
-	// 	Twinkle.batchundelete();
-	// }
-	// if (Twinkle.getPref('XfdClose') !== 'hide') {
-	// 	Twinkle.close();
-	// }
+	if (Morebits.userIsInGroup('sysop')) {
+		// Twinkle.batchdelete();
+		// Twinkle.batchundelete();
+	}
+	if (Twinkle.getPref('XfdClose') !== 'hide') {
+		// Twinkle.close();
+	}
 
 	Twinkle.addPortletLink(mw.util.wikiScript('index') + '?title=' + Twinkle.getPref('configPage'), wgULS('设置', '設定'), 'tw-config', wgULS('设置Twinkle参数', '設定Twinkle參數'));
 
