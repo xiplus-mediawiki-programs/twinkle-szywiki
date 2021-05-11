@@ -1,4 +1,4 @@
-/* global Twinkle, Morebits */
+/* global Morebits */
 
 // Script depends on jQuery dialog widget, loaded through jquery.ui after
 // T219604 (1.35-wmf.2 circa 22 Oct 2019)
@@ -61,18 +61,18 @@ mw.loader.using('jquery.ui', function() {
 		loadCallbackInsert: function(page) {
 			var params = page.getCallbackParameters();
 			var text = page.getPageText();
-			var pos = text.indexOf(params['beforeText']);
+			var pos = text.indexOf(params.beforeText);
 			if (pos === -1) {
-				alert('Search text "' + params['beforeText'] + '" not found!');
+				alert('Search text "' + params.beforeText + '" not found!');
 				return;
 			}
-			page.setPageText(text.substr(0, pos) + params['newText'] + text.substr(pos));
+			page.setPageText(text.substr(0, pos) + params.newText + text.substr(pos));
 			page.save(Twinkle.morebitsTest.finalSaveCallback);
 		},
 
 		loadCallbackReplace: function(page) {
 			var params = page.getCallbackParameters();
-			page.setPageText(params['newText']);
+			page.setPageText(params.newText);
 			page.save(Twinkle.morebitsTest.finalSaveCallback);
 		},
 

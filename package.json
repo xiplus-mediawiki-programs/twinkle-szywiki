@@ -1,12 +1,14 @@
 {
-  "title": "Twinkle",
-  "name": "twinkle",
-  "private": true,
-  "repository": "azatoth/twinkle",
-  "scripts": {
-    "lint": "eslint ."
-  },
-  "devDependencies": {
-    "eslint": "5.16.0"
-  }
+	"title": "Twinkle",
+	"name": "twinkle-szywiki",
+	"private": true,
+	"repository": "Xi-Plus/twinkle-szywiki",
+	"scripts": {
+		"lint": "eslint .",
+		"lint:fix": "eslint . --fix"
+	},
+	"devDependencies": {
+		"eslint": "^7.25.0",
+		"eslint-plugin-es5": "^1.5.0"
+	}
 }
